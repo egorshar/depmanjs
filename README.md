@@ -1,0 +1,1 @@
+Depsy is a JavaScript dependency manager.
