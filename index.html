@@ -28,7 +28,41 @@
 
     <div class="container">
       <section id="main_content">
-        <p>Depsy is a JavaScript dependency manager.</p>
+        <p><strong>depjs</strong> is a JavaScript dependency manager.</p>
+
+<h2>Syntax</h2>
+
+<p>Configure your project and if you use any <strong>non-depjs</strong> lib, you can add rules as they are attached to <strong>depjs</strong> for further use.</p>
+
+<div class="highlight"><pre><span class="nx">dep</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+  <span class="nx">project</span><span class="o">:</span> <span class="s1">'depjs'</span><span class="p">,</span>
+  <span class="nx">version</span><span class="o">:</span> <span class="s1">'0.1.0'</span><span class="p">,</span>
+  <span class="nx">path</span><span class="o">:</span> <span class="s1">'/js/'</span><span class="p">,</span>
+  <span class="nx">vendor</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">underscore</span><span class="o">:</span> <span class="s1">'_'</span><span class="p">,</span>
+    <span class="nx">jquery</span><span class="o">:</span> <span class="s1">'jQuery'</span><span class="p">,</span>
+    <span class="nx">backbone</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">use</span><span class="o">:</span> <span class="p">[</span><span class="s1">'vendor.underscore'</span><span class="p">,</span> <span class="s1">'vendor.jquery'</span><span class="p">],</span>
+      <span class="nx">attach</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">_</span><span class="p">,</span> <span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">Backbone</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>Define your own <strong>depjs</strong> module, which may depend on other libs.</p>
+
+<div class="highlight"><pre><span class="nx">dep</span><span class="p">.</span><span class="nx">use</span><span class="p">([</span><span class="s1">'vendor.jquery'</span><span class="p">],</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">alert</span><span class="p">(</span><span class="mi">123</span><span class="p">);</span>
+<span class="p">},</span> <span class="s1">'lib.graph'</span><span class="p">);</span>
+</pre></div>
+
+<h2>Contributor</h2>
+
+<p><strong>Egor Sharapov</strong></p>
+
+<p><a href="http://egorshar.ru">http://egorshar.ru</a><br><a href="http://github.com/egych">http://github.com/egych</a></p>
       </section>
     </div>
 
