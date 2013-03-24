@@ -1,41 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>depmanjs by egych</title>
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
-    <title>depjs by egych</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">depmanjs</h1>
+        <p class="header">JavaScript dependency manager</p>
 
-    <header>
-      <div class="container">
-        <h1>depjs</h1>
-        <h2>JavaScript dependency manager.</h2>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/egych/depmanjs/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/egych/depmanjs/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/egych/depmanjs">View On GitHub</a></li>
+        </ul>
 
-        <section id="downloads">
-          <a href="https://github.com/egych/depjs/zipball/master" class="btn">Download as .zip</a>
-          <a href="https://github.com/egych/depjs/tarball/master" class="btn">Download as .tar.gz</a>
-          <a href="https://github.com/egych/depjs" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/egych">egych</a></p>
 
-    <div class="container">
-      <section id="main_content">
-        <p><strong>depjs</strong> is a JavaScript dependency manager.</p>
+
+      </header>
+      <section>
+        <p><strong>depmanjs</strong> is a JavaScript dependency manager.</p>
 
 <h2>Syntax</h2>
 
-<p>Configure your project and if you use any <strong>non-depjs</strong> lib, you can add rules as they are attached to <strong>depjs</strong> for further use.</p>
+<p>Configure your project and if you use any <strong>non-depmanjs</strong> lib, you can add rules as they are attached to <strong>depmanjs</strong> for further use.</p>
 
-<div class="highlight"><pre><span class="nx">dep</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
-  <span class="nx">project</span><span class="o">:</span> <span class="s1">'depjs'</span><span class="p">,</span>
+<div class="highlight"><pre><span class="nx">depman</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+  <span class="nx">project</span><span class="o">:</span> <span class="s1">'depmanjs'</span><span class="p">,</span>
   <span class="nx">version</span><span class="o">:</span> <span class="s1">'0.1.0'</span><span class="p">,</span>
   <span class="nx">path</span><span class="o">:</span> <span class="s1">'/js/'</span><span class="p">,</span>
   <span class="nx">vendor</span><span class="o">:</span> <span class="p">{</span>
@@ -51,21 +53,24 @@
 <span class="p">});</span>
 </pre></div>
 
-<p>Define your own <strong>depjs</strong> module, which may depend on other libs.</p>
+<p>Define your own <strong>depmanjs</strong> module, which may depend on other libs.</p>
 
-<div class="highlight"><pre><span class="nx">dep</span><span class="p">.</span><span class="nx">use</span><span class="p">([</span><span class="s1">'vendor.jquery'</span><span class="p">],</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><span class="nx">depman</span><span class="p">.</span><span class="nx">use</span><span class="p">([</span><span class="s1">'vendor.jquery'</span><span class="p">],</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">$</span><span class="p">)</span> <span class="p">{</span>
   <span class="nx">alert</span><span class="p">(</span><span class="mi">123</span><span class="p">);</span>
 <span class="p">},</span> <span class="s1">'lib.graph'</span><span class="p">);</span>
 </pre></div>
 
-<h2>Contributor</h2>
+<h2>Contributors</h2>
 
 <p><strong>Egor Sharapov</strong></p>
 
 <p><a href="http://egorshar.ru">http://egorshar.ru</a><br><a href="http://github.com/egych">http://github.com/egych</a></p>
       </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
     </div>
-
-    
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
