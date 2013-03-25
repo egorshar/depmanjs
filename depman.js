@@ -1,3 +1,8 @@
+/*!
+  * depmanjs - copyright (c) Egor Sharapov 2013
+  * https://github.com/egych/depmanjs
+  * MIT license
+  */
 (function (window, document) {
   var DepMan
     , Manager
@@ -5,8 +10,8 @@
     , CONFIG;
 
   /**
-  * Project config, can be changed with dep.config({}) function
-  */
+    * Project config, can be changed with dep.config({}) function
+    */
   CONFIG = {
     project: 'Project name',
     version: '0.0.1',
@@ -15,11 +20,11 @@
   };
 
   /**
-  * Dependency manager
-  * @constructor
-  * @this {Manager}
-  * @return {Manager}
-  */
+    * Dependency manager
+    * @constructor
+    * @this {Manager}
+    * @return {Manager}
+    */
   Manager = function () {
     this.queue = [];
     this.is_being_load = [];
@@ -30,11 +35,11 @@
   };
 
   /**
-  * Defining new namespace
-  * @param {String} ns Namespace path
-  * @param {Object} val Value, if need to set as it been defined
-  * @return {Object}
-  */
+    * Defining new namespace
+    * @param {String} ns Namespace path
+    * @param {Object} val Value, if need to set as it been defined
+    * @return {Object}
+    */
   Manager.prototype.namespace = function (ns, val) {
     var parts = ns.split('.')
       , parent = this.modules;
@@ -55,10 +60,10 @@
   };  
 
   /**
-  * Check if module is already loaded
-  * @param {String} ns Namespace of module
-  * @return {Boolean}
-  */
+    * Check if module is already loaded
+    * @param {String} ns Namespace of module
+    * @return {Boolean}
+    */
   Manager.prototype.isLoaded = function (ns) {
     if (typeof this.namespace(ns) !== 'undefined') {
       return true;
@@ -67,19 +72,19 @@
   };
 
   /**
-  * Base object, contains common library functions
-  * @constructor
-  * @this {DepMan}
-  * @return {DepMan}
-  */
+    * Base object, contains common library functions
+    * @constructor
+    * @this {DepMan}
+    * @return {DepMan}
+    */
   DepMan = function () {
     this.manager = new Manager();
   };
 
   /**
-  * Confugure your project
-  * @param {Object} params Input params for configurating project
-  */
+    * Confugure your project
+    * @param {Object} params Input params for configurating project
+    */
   DepMan.prototype.config = function (params) {
     var config = CONFIG, key;
     params = params || {};
@@ -94,12 +99,12 @@
   };
 
   /**
-  * Permit dependencies of module and perform a callback
-  * @param {Array} requires Modules, that required for this module
-  * @param {Function} callback Callback-function
-  * @param {String} namespace Namespace of this module
-  * @return {Boolean} true
-  */
+    * Permit dependencies of module and perform a callback
+    * @param {Array} requires Modules, that required for this module
+    * @param {Function} callback Callback-function
+    * @param {String} namespace Namespace of this module
+    * @return {Boolean} true
+    */
   DepMan.prototype.use = function (requires, callback, namespace) {
     if (arguments.length == 2) {
       if (typeof requires === 'function') {
