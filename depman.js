@@ -6,8 +6,8 @@
 (function (window, document) {
   var DepMan
     , Manager
+    , Vendor
     , CONFIG
-    , vendor
     , head = document.getElementsByTagName('head')[0];
 
   /**
@@ -29,9 +29,13 @@
     */
   Vendor = function (manager) {
     this.manager = manager;
-    this.is_being_load = [];
   };
 
+  /**
+    * Check namespace for vendor accessory
+    * @param {String} ns Namespace
+    * @return {Boolean}
+    */
   Vendor.prototype.check = function (ns) {
     if (ns.indexOf('vendor.') === 0) {
       return true;
@@ -71,7 +75,11 @@
       if (typeof vendor.attach === 'string') {
         return window[vendor.attach];
       } else {
-        return vendor.attach();
+        try {
+          return this.attach((vendor.use || []), vendor.attach);
+        } catch (e) {
+          return undefined;
+        }
       }
     }
     return undefined;
@@ -90,18 +98,42 @@
     return false;
   }
 
-  Vendor.prototype.attach = function (ns) {
-    var vendor = this.getConfig(ns)
-      , use = vendor['use']
-      , args = [];
+  /**
+    * If vendor has attach function, then trigger it with deps args
+    * @param {Array} deps Vendor dependencies
+    * @param {Function} attach Attach function
+    * @return {Mixed} Attach function result
+    */
+  Vendor.prototype.attach = function (deps, attach) {
+    var args = [];
 
-    if (typeof vendor.attach === 'function') {
-      for (var i in use) {
-        args.push(this.get(use[i]));
-      }
-      vendor['attach'].apply({}, args);
+    for (var i in deps) {
+      args.push(this.get(deps[i]));
     }
-  }
+    return attach.apply({}, args);
+  };
+
+  /**
+    * Load vendor if it has dependencies
+    * @param {String} ns Vendor namespace
+    * @return {Boolean} If vendor has hard deps, then it can be synchronous loaded
+    */
+  Vendor.prototype.load = function (ns) {
+    var vendor_config = this.getConfig(ns)
+      , callback = function () {
+          if (vendor_config.sync === true) {
+            this.manager.load(ns);
+          }
+        };
+
+    if (vendor_config && (typeof vendor_config['use'] === 'object')) {
+      this.manager.add(vendor_config['use'], callback, ns);
+
+      return (vendor_config['sync'] === true);
+    }
+
+    return false;
+  };
 
   /**
     * Dependency manager
@@ -181,9 +213,10 @@
     * @param {Array} requres Array of module dependencies
     * @param {Function} callback Callback function
     * @param {String} ns Namespace of module that being loaded
+    * @param {String} version Module version
     * @return {Manager} Возвращает объект UseManager
     */
-  Manager.prototype.add = function(requires, cb, ns) {
+  Manager.prototype.add = function(requires, cb, ns, version) {
     var deps = []
       , vendor_use
       , self = this
@@ -195,18 +228,11 @@
         continue;
       }
 
-      if (this.vendor.check(requires[i])) {
-        vendor_config = this.vendor.getConfig(requires[i]);
-
-        if (vendor_config && (typeof vendor_config['use'] === 'object')) {
-          this.add(vendor_config['use'], function () {
-            self.load(requires[0]);
-          }, requires[i]);
-          vendor_wait = true;
-        }
+      if (this.vendor.check(requires[i]) && (typeof this.vendor.get(requires[i]) === 'undefined')) {
+        vendor_wait = this.vendor.load(requires[i], this);
       }
       if (!vendor_wait) {
-        this.load(requires[i]);
+        this.load(requires[i], version);
       }
       deps.push(requires[i]);
     }
@@ -254,17 +280,35 @@
   };
 
   /**
+    * Mix version of module and config version
+    * @param {String} version Module version
+    * @return {String} Mixed version of module and config versions
+    */
+  Manager.prototype.mixVersion = function (version) {
+    var config_version = CONFIG.version.split('.')
+      , module_version = [];
+
+    version = (version || '0.0.0').split('.');
+    for (var i = 0, l = config_version.length; i < l; i += 1) {
+      module_version[i] = (config_version[i]|0)+(version[i]|0);
+    }
+
+    return module_version.join('.');
+  };
+
+  /**
     * Prepare namespace for load js-file
     * @param {String} ns Namespace of module, converts to filename with ns2File-function
+    * @param {String} version Module version
     * @return {Manager}
     */
-  Manager.prototype.load = function(ns) {
+  Manager.prototype.load = function(ns, version) {
     if ((this.is_being_load.indexOf(ns) >= 0) || this.isLoaded(ns)) {
       this.checkQueue(ns);
       return;
     }
 
-    var cacheParam = '?' + (CONFIG.production ? ('v'+CONFIG.version) : (+new Date))
+    var cacheParam = '?' + (CONFIG.production ? ('v'+this.mixVersion(version)) : (+new Date))
       , filename = this.ns2File(ns) + cacheParam;
 
     this.loadFile(filename, ns);
@@ -338,7 +382,6 @@
         */
       for (var k = 0, l = item.deps.length; k < l; k++) {
         loaded_module = this.get(item.deps[k]);
-        //console.log(item.deps[k]);
         if (loaded_module !== false) {
           item.loaded[k] = loaded_module;
         }
@@ -347,8 +390,6 @@
       /**
         * If loaded modules equal to required modules, then trigger callback-function and initialize module
         */
-        //console.log(ns);
-        //console.log(this.objLength(item.deps) === this.objLength(item.loaded));
       if (this.objLength(item.deps) === this.objLength(item.loaded)) {
         this.namespace(item.ns, item.callback.apply({}, item.loaded));
         this.queue.splice(i, 1);
@@ -366,6 +407,7 @@
     */
   DepMan = function () {
     this.manager = new Manager();
+    this.module_version = '0.0.0';
   };
 
   /**
@@ -400,11 +442,35 @@
     * @return {Boolean} true
     */
   DepMan.prototype.use = function (requires, callback, namespace) {
+    var version = this.module_version;
+    this.module_version = '0.0.0';
     namespace = namespace || 'auto_ns.'+(+new Date);
     callback = typeof callback === 'function' ? callback : (function () {});
-    this.manager.add(requires, callback, namespace);
+    this.manager.add(requires, callback, namespace, version);
 
     return true;
+  };
+
+  /**
+    * Adding vendor to project without adding this to project config
+    * @param {Object} vendor Params like each vendor in config
+    * @return {Depman}
+    */
+  DepMan.prototype.addVendor = function (vendor) {
+    // todo 
+  };
+
+  /**
+    * Set custom version of module being loaded
+    * @param {String} version Version of module, for clear cache after module update
+    * @return {Depman}
+    */
+  DepMan.prototype.v = function (version) {
+    if (typeof version === 'string') {
+      this.module_version = version;
+    }
+
+    return this;
   };
 
   window.depman = new DepMan();

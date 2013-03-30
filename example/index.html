@@ -24,12 +24,13 @@
         backbone: {
           path: 'http://backbonejs.ru/backbone-min.js',
           use: ['vendor.underscore', 'vendor.jquery'],
-          attach: 'Backbone'// function (_, $) { return Backbone; }
+          sync: false,
+          attach: function (_, $) { return Backbone; }
         }
       }
     });
 
-    depman.use(['solver'], function (solver) {
+    depman.v('0.2.2').use(['solver'], function (solver) {
       solver.sum(2, 2);
     });
     </script>
