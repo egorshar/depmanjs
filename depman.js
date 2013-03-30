@@ -68,45 +68,13 @@
     if (typeof vendor === 'string') {
       return window[vendor];
     } else {
-      if (this.hasUsing(ns)) {
-        return undefined;
+      if (typeof vendor.attach === 'string') {
+        return window[vendor.attach];
       } else {
-        if (typeof vendor.attach === 'string') {
-          return window[vendor.attach];
-        } else {
-          return vendor.attach();
-        }
+        return vendor.attach();
       }
     }
     return undefined;
-  };
-
-  Vendor.prototype.hasUsing = function (ns) {
-    var vendor = this.getConfig(ns)
-      , callback = (typeof vendor.attach == 'function' ? vendor.attach : (function () { return window[vendor.attach] }))
-      , allDepsLoaded = true;
-
-    if (typeof vendor.use !== 'undefined' && vendor.use.length) {
-      for (var i = 0, l = vendor.use.length; i < l; i += 1) {
-        if (!this.manager.isLoaded(vendor.use[i])) {
-          allDepsLoaded = false;
-        }
-      }
-
-      if (this.is_being_load.indexOf(ns) === -1) {
-        this.manager.add(vendor.use, callback, ns);
-        this.is_being_load.push(ns);
-      }
-
-      //console.log(allDepsLoaded);
-      if (allDepsLoaded) {
-        //this.manager.checkQueue(ns);
-        return false;
-      } else {
-        return true;
-      }
-    }
-    return false;
   };
   
   /**
@@ -120,6 +88,19 @@
       return vendor['path'];
     }
     return false;
+  }
+
+  Vendor.prototype.attach = function (ns) {
+    var vendor = this.getConfig(ns)
+      , use = vendor['use']
+      , args = [];
+
+    if (typeof vendor.attach === 'function') {
+      for (var i in use) {
+        args.push(this.get(use[i]));
+      }
+      vendor['attach'].apply({}, args);
+    }
   }
 
   /**
@@ -203,10 +184,30 @@
     * @return {Manager} Возвращает объект UseManager
     */
   Manager.prototype.add = function(requires, cb, ns) {
-    var deps = [];
+    var deps = []
+      , vendor_use
+      , self = this
+      , vendor_wait = false;
 
     for (var i = 0, l = requires.length; i < l; i += 1) {
-      this.load(requires[i]);
+      // if it already loading then do nothing
+      if (this.is_being_load.indexOf(requires[i]) >= 0) {
+        continue;
+      }
+
+      if (this.vendor.check(requires[i])) {
+        vendor_config = this.vendor.getConfig(requires[i]);
+
+        if (vendor_config && (typeof vendor_config['use'] === 'object')) {
+          this.add(vendor_config['use'], function () {
+            self.load(requires[0]);
+          }, requires[i]);
+          vendor_wait = true;
+        }
+      }
+      if (!vendor_wait) {
+        this.load(requires[i]);
+      }
       deps.push(requires[i]);
     }
 
@@ -220,6 +221,23 @@
     this.checkQueue(ns);
 
     return this;
+  };
+
+  /**
+    * Check array or object length
+    * @param {Object} obj Object or array
+    * @return {Number} Количество элементов в массиве
+    */
+  Manager.prototype.objLength = function(obj) {
+    var i, count = 0;
+
+    for (i in obj) {
+      if (typeof obj[i] !== 'undefined' && obj.hasOwnProperty(i)) {
+        count += 1;
+      }
+    }
+
+    return count;
   };
 
   /**
@@ -246,15 +264,10 @@
       return;
     }
 
-    // if is vendor script and it have requires
-    if (this.vendor.check(ns) && this.vendor.hasUsing(ns)) {
-      return;
-    }
-
     var cacheParam = '?' + (CONFIG.production ? ('v'+CONFIG.version) : (+new Date))
       , filename = this.ns2File(ns) + cacheParam;
 
-    this.loadFile(filename);
+    this.loadFile(filename, ns);
     this.is_being_load.push(ns);
 
     return this;
@@ -309,6 +322,10 @@
   Manager.prototype.checkQueue = function(ns) {
     var i, item, loaded_module;
 
+    if (!ns) {
+      return;
+    }
+
     for (i in this.queue) {
       if (!this.queue.hasOwnProperty(i)) {
         continue;
@@ -321,6 +338,7 @@
         */
       for (var k = 0, l = item.deps.length; k < l; k++) {
         loaded_module = this.get(item.deps[k]);
+        //console.log(item.deps[k]);
         if (loaded_module !== false) {
           item.loaded[k] = loaded_module;
         }
@@ -329,7 +347,9 @@
       /**
         * If loaded modules equal to required modules, then trigger callback-function and initialize module
         */
-      if (item.deps.length === item.loaded.length) {
+        //console.log(ns);
+        //console.log(this.objLength(item.deps) === this.objLength(item.loaded));
+      if (this.objLength(item.deps) === this.objLength(item.loaded)) {
         this.namespace(item.ns, item.callback.apply({}, item.loaded));
         this.queue.splice(i, 1);
         this.checkQueue(item.ns);

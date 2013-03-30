@@ -4,31 +4,34 @@
     <meta charset="UTF-8">
     <title>depmanjs example</title>
     <script src="../depman.js" type="text/javascript"></script>
+    <!--<script src="http://code.jquery.com/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="http://underscorejs.org/underscore-min.js" type="text/javascript"></script>
+    <script src="http://backbonejs.ru/backbone-min.js" type="text/javascript"></script>-->
     <script>
-      depman.config({
-        project: 'depmanjs example',
-        production: false,
-        path: './js/',
-        vendor: {
-          underscore: {
-            path: 'http://underscorejs.org/underscore-min.js',
-            attach: '_'
-          },
-          jquery: {
-            path: 'http://code.jquery.com/jquery-1.9.1.min.js',
-            attach: 'jQuery'
-          },
-          backbone: {
-            path: 'http://backbonejs.ru/backbone-min.js',
-            use: ['vendor.underscore', 'vendor.jquery'],
-            attach: 'Backbone'
-          }
+    depman.config({
+      project: 'depmanjs example',
+      production: false,
+      path: './js/',
+      vendor: {
+        underscore: {
+          path: 'http://underscorejs.org/underscore-min.js',
+          attach: '_'
+        },
+        jquery: {
+          path: 'http://code.jquery.com/jquery-1.9.1.min.js',
+          attach: 'jQuery'
+        },
+        backbone: {
+          path: 'http://backbonejs.ru/backbone-min.js',
+          use: ['vendor.underscore', 'vendor.jquery'],
+          attach: 'Backbone'// function (_, $) { return Backbone; }
         }
-      });
+      }
+    });
 
-      depman.use(['solver'], function (solver) {
-        solver.sum(2, 2);
-      });
+    depman.use(['solver'], function (solver) {
+      solver.sum(2, 2);
+    });
     </script>
   </head>
 
