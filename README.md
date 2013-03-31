@@ -13,7 +13,7 @@ depman.use([], function () {
 
 ## API
 
-Depmanjs has five main methods, each packing quite a punch.
+Depmanjs has four main methods, each packing quite a punch.
 
   * <a href="#config">depman.<code>config()</code></a>
   * <a href="#v">depman.<code>v()</code></a>
