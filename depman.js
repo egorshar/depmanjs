@@ -4,11 +4,11 @@
   * MIT license
   */
 (function (window, document) {
-  var DepMan
-    , Manager
-    , Vendor
-    , CONFIG
-    , head = document.getElementsByTagName('head')[0];
+  var DepMan, 
+      Manager, 
+      Vendor, 
+      CONFIG, 
+      head = document.getElementsByTagName('head')[0];
 
   /**
     * Project config, can be changed with depman.config({}) function
@@ -49,8 +49,8 @@
     * @return {Object|Boolean} If object by namespace isset, then return object, else return false
     */
   Vendor.prototype.getConfig = function (ns) {
-    var parts = ns.split('.')
-      , parent = CONFIG;
+    var parts = ns.split('.'), 
+        parent = CONFIG;
 
     for (var i = 0, l = parts.length; i < l; i += 1) {
       if (typeof parent[parts[i]] === 'undefined') {
@@ -60,7 +60,7 @@
     }
 
     return parent;
-  }
+  };
 
   /**
     * Get vendor module
@@ -93,10 +93,10 @@
   Vendor.prototype.customPath = function (ns) {
     var vendor = this.getConfig(ns);
     if (vendor !== false) {
-      return vendor['path'];
+      return vendor.path;
     }
     return false;
-  }
+  };
 
   /**
     * If vendor has attach function, then trigger it with deps args
@@ -119,17 +119,17 @@
     * @return {Boolean} If vendor has hard deps, then it can be synchronous loaded
     */
   Vendor.prototype.load = function (ns) {
-    var vendor_config = this.getConfig(ns)
-      , callback = function () {
+    var vendor_config = this.getConfig(ns), 
+        callback = function () {
           if (vendor_config.sync === true) {
             this.manager.load(ns);
           }
         };
 
-    if (vendor_config && (typeof vendor_config['use'] === 'object')) {
-      this.manager.add(vendor_config['use'], callback, ns);
+    if (vendor_config && (typeof vendor_config.use === 'object')) {
+      this.manager.add(vendor_config.use, callback, ns);
 
-      return (vendor_config['sync'] === true);
+      return (vendor_config.sync === true);
     }
 
     return false;
@@ -159,9 +159,9 @@
     * @return {Boolean}
     */
   Manager.prototype.ns = function (ns, val) {
-    var parts = ns.split('.')
-      , parent = this.modules
-      , hasVal = typeof val !== 'undefined';
+    var parts = ns.split('.'), 
+        parent = this.modules, 
+        hasVal = typeof val !== 'undefined';
 
     for (var i = 0, l = parts.length; i < l; i += 1) {
       if (typeof parent[parts[i]] === 'undefined') {
@@ -217,10 +217,10 @@
     * @return {Manager} Возвращает объект UseManager
     */
   Manager.prototype.add = function(requires, cb, ns, version) {
-    var deps = []
-      , vendor_use
-      , self = this
-      , vendor_wait = false;
+    var deps = [], 
+        vendor_use, 
+        self = this, 
+        vendor_wait = false;
 
     for (var i = 0, l = requires.length; i < l; i += 1) {
       // if it already loading then do nothing
@@ -285,8 +285,8 @@
     * @return {String} Mixed version of module and config versions
     */
   Manager.prototype.mixVersion = function (version) {
-    var config_version = CONFIG.version.split('.')
-      , module_version = [];
+    var config_version = CONFIG.version.split('.'), 
+        module_version = [];
 
     version = (version || '0.0.0').split('.');
     for (var i = 0, l = config_version.length; i < l; i += 1) {
@@ -308,8 +308,8 @@
       return;
     }
 
-    var cacheParam = '?' + (CONFIG.production ? ('v'+this.mixVersion(version)) : (+new Date))
-      , filename = this.ns2File(ns) + cacheParam;
+    var cacheParam = '?' + (CONFIG.production ? ('v'+this.mixVersion(version)) : (+new Date())), 
+        filename = this.ns2File(ns) + cacheParam;
 
     this.loadFile(filename, ns);
     this.is_being_load.push(ns);
@@ -323,8 +323,8 @@
     * @param {String} ns Namespace of module to load
     */
   Manager.prototype.loadFile = function (filename, ns) {
-    var script = document.createElement('script')
-      , self = this;
+    var script = document.createElement('script'), 
+        self = this;
 
     // IE
     script.onreadystatechange = function () {
@@ -444,7 +444,7 @@
   DepMan.prototype.use = function (requires, callback, namespace) {
     var version = this.module_version;
     this.module_version = '0.0.0';
-    namespace = namespace || 'auto_ns.'+(+new Date);
+    namespace = namespace || 'auto_ns.'+(+new Date());
     callback = typeof callback === 'function' ? callback : (function () {});
     this.manager.add(requires, callback, namespace, version);
 
