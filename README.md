@@ -27,7 +27,7 @@ Depmanjs has four main methods, each packing quite a punch.
 
 **Arguments**
 
-  * **params / object** (DOM Element or Object) - an HTML DOM element or any JavaScript Object
+  * **params / object** (Object) - params of the project
 
 **Examples**
 
@@ -46,7 +46,7 @@ depman.config({
 
 Depmanjs passes our tests in all the following browsers. If you've found bugs in these browsers or others please let us know by submitting an issue on GitHub!
 
-  - IE6+
+  - IE7+
   - Chrome 1+
   - Safari 4+
   - Firefox 3.5+
