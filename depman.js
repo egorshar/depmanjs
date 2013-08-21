@@ -504,12 +504,11 @@
   DepMan.prototype.addCSS = function (css) {
     var self = this, i,
         add_fn = function (url) {
-          url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + self.module_version;
           var link = document.createElement('LINK'),
               hash = self.getHash(url);
 
           if (!document.getElementById('css_'+hash)) {
-            link.href = url;
+            link.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + (CONFIG.production ? ('v' + self.manager.mixVersion(self.module_version)) : (+new Date()));
             link.type = 'text/css';
             link.rel = 'stylesheet';
             link.id = 'css_' + hash;
