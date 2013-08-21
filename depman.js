@@ -492,29 +492,29 @@
    * @param {String} s Input string
    * @return {String} Hash
    */
-	DepMan.prototype.getHash = function(s){
-		return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
-	};
+  DepMan.prototype.getHash = function(s){
+    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+  };
   
   /**
    * Add css file to head
    * @param {String|Array} css CSS files or file need to add
    * @return {DepMan}
    */
-	DepMan.prototype.addCSS = function (css) {
+  DepMan.prototype.addCSS = function (css) {
     var self = this, i,
         add_fn = function (url) {
-      		url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + self.module_version;
-      		var link = document.createElement('LINK'),
-      		    hash = self.getHash(url);
+          url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + self.module_version;
+          var link = document.createElement('LINK'),
+              hash = self.getHash(url);
 
-      		if (!document.getElementById('css_'+hash)) {
-      			link.href = url;
-      			link.type = 'text/css';
-      			link.rel = 'stylesheet';
-      			link.id = 'css_' + hash;
-      			document.getElementsByTagName('head')[0].appendChild(link);
-      		}
+          if (!document.getElementById('css_'+hash)) {
+            link.href = url;
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            link.id = 'css_' + hash;
+            document.getElementsByTagName('head')[0].appendChild(link);
+          }
         };
     
     css = (typeof css === 'string') ? [css] : css;
@@ -524,7 +524,7 @@
     }
     
     return this;
-	};
+  };
 
   window.depman = new DepMan();
 } (this, document));
