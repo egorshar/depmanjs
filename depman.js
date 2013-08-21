@@ -224,9 +224,8 @@
     * @return {Manager} Возвращает объект UseManager
     */
   Manager.prototype.add = function(requires, cb, ns, version) {
-    var deps = [], 
-        vendor_use, 
-        self = this, 
+    var deps = [],
+        self = this,
         vendor_wait = false;
 
     for (var i = 0, l = requires.length; i < l; i += 1) {
@@ -448,7 +447,7 @@
     * @param {Array} requires Modules, that required for this module
     * @param {Function} callback Callback-function
     * @param {String} namespace Namespace of this module
-    * @return {Boolean} true
+    * @return {DepMan}
     */
   DepMan.prototype.use = function (requires, callback, namespace) {
     var version = this.module_version;
@@ -457,7 +456,7 @@
     callback = typeof callback === 'function' ? callback : (function () {});
     this.manager.add(requires, callback, namespace, version);
 
-    return true;
+    return this;
   };
 
   /**
