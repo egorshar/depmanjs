@@ -20,17 +20,16 @@
         jquery: {
           path: 'http://code.jquery.com/jquery-1.9.1.min.js',
           attach: 'jQuery'
-        },
-        backbone: {
-          path: 'http://backbonejs.ru/backbone-min.js',
-          use: ['vendor.underscore', 'vendor.jquery'],
-          sync: false,
-          attach: function (_, $) { return Backbone; }
         }
       }
     });
 
-    depman.v('0.2.2').use(['solver'], function (solver) {
+    depman.v('0.2.2').addVendor('backbone', {
+        path: 'http://backbonejs.ru/backbone-min.js',
+        use: ['vendor.underscore', 'vendor.jquery'],
+        sync: true,
+        attach: function (_, $) { return Backbone; }
+      }).addCSS(['style.css', 'style1.css']).use(['solver'], function (solver) {
       solver.sum(2, 2);
     });
     </script>

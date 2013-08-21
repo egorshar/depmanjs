@@ -4,11 +4,17 @@
   * MIT license
   */
 (function (window, document) {
-  var DepMan, 
-      Manager, 
-      Vendor, 
-      CONFIG, 
-      head = document.getElementsByTagName('head')[0];
+  var DepMan,
+      Manager,
+      Vendor,
+      CONFIG,
+      head = document.getElementsByTagName('head')[0],
+      start_time = +new Date(),
+      log = function (msg) { // wrapper for console.log
+        if ((CONFIG.production !== true) && console && (typeof (console.log) !== 'undefined')) {
+          console.log('[' + (+new Date()-start_time)/1000 + ']  ' + msg);
+        }
+      };
 
   /**
     * Project config, can be changed with depman.config({}) function
@@ -119,10 +125,11 @@
     * @return {Boolean} If vendor has hard deps, then it can be synchronous loaded
     */
   Vendor.prototype.load = function (ns) {
-    var vendor_config = this.getConfig(ns), 
+    var vendor_config = this.getConfig(ns),
+        self = this,
         callback = function () {
           if (vendor_config.sync === true) {
-            this.manager.load(ns);
+            self.manager.load(ns);
           }
         };
 
@@ -330,12 +337,14 @@
     script.onreadystatechange = function () {
       if (script.readyState === 'loaded' || script.readyState === 'complete') { 
         script.onreadystatechange = null;
+        log(ns.toString() + ' is loaded');
         self.checkQueue(ns);
       } 
     };
 
     // other
     script.onload = function () {
+      log(ns.toString() + ' is loaded');
       self.checkQueue(ns);
     };
 
@@ -454,16 +463,21 @@
   /**
     * Adding vendor to project without adding this to project config
     * @param {Object} vendor Params like each vendor in config
-    * @return {Depman}
+    * @return {DepMan}
     */
-  DepMan.prototype.addVendor = function (vendor) {
-    // todo 
+  DepMan.prototype.addVendor = function (name, vendor) {
+    if (typeof (CONFIG.vendor[name]) !== 'undefined') {
+      log('This vendor already set in config: ' + name.toString());
+    } else {
+      CONFIG.vendor[name] = vendor;
+    }
+    return this;
   };
 
   /**
     * Set custom version of module being loaded
     * @param {String} version Version of module, for clear cache after module update
-    * @return {Depman}
+    * @return {DepMan}
     */
   DepMan.prototype.v = function (version) {
     if (typeof version === 'string') {
@@ -472,6 +486,45 @@
 
     return this;
   };
+  
+  /**
+   * Simple hash from string
+   * @param {String} s Input string
+   * @return {String} Hash
+   */
+	DepMan.prototype.getHash = function(s){
+		return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+	};
+  
+  /**
+   * Add css file to head
+   * @param {String|Array} css CSS files or file need to add
+   * @return {DepMan}
+   */
+	DepMan.prototype.addCSS = function (css) {
+    var self = this, i,
+        add_fn = function (url) {
+      		url += (url.indexOf('?') >= 0 ? '&' : '?') + 'v=' + self.module_version;
+      		var link = document.createElement('LINK'),
+      		    hash = self.getHash(url);
+
+      		if (!document.getElementById('css_'+hash)) {
+      			link.href = url;
+      			link.type = 'text/css';
+      			link.rel = 'stylesheet';
+      			link.id = 'css_' + hash;
+      			document.getElementsByTagName('head')[0].appendChild(link);
+      		}
+        };
+    
+    css = (typeof css === 'string') ? [css] : css;
+    
+    for (i in css) {
+      add_fn(css[i]);
+    }
+    
+    return this;
+	};
 
   window.depman = new DepMan();
 } (this, document));
