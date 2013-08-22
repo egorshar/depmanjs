@@ -11,7 +11,8 @@
       head = document.getElementsByTagName('head')[0],
       start_time = +new Date(),
       log = function (msg) { // wrapper for console.log
-        if ((CONFIG.production !== true) && console && (typeof (console.log) !== 'undefined')) {
+        if ((CONFIG.system_log == true || (CONFIG.production !== true)) && 
+            console && (typeof (console.log) !== 'undefined')) {
           console.log('[' + (+new Date()-start_time)/1000 + ']  ' + msg);
         }
       };
@@ -20,9 +21,10 @@
     * Project config, can be changed with depman.config({}) function
     */
   CONFIG = {
-    project: 'Project name',
+    project: 'Project Name',
     version: '0.0.1',
     production: true, // production env allow cache included files in browser by CONFIG.version param
+    system_log: false, // always show debug info
     path: '/js/', // depmanjs file-structure root-path
     vendor: {}  // used non-depmanjs scripts
   };
@@ -111,11 +113,12 @@
     * @return {Mixed} Attach function result
     */
   Vendor.prototype.attach = function (deps, attach) {
-    var args = [];
+    var args = [], i;
 
-    for (var i in deps) {
+    for (i in deps) {
       args.push(this.get(deps[i]));
     }
+
     return attach.apply({}, args);
   };
 
@@ -149,7 +152,7 @@
     * @return {Manager}
     */
   Manager = function () {
-    this.queue = [];
+    this.queue = {};
     this.is_being_load = [];
 
     this.modules = {};
@@ -230,9 +233,12 @@
 
     for (var i = 0, l = requires.length; i < l; i += 1) {
       // if it already loading then do nothing
+      /*
       if (this.is_being_load.indexOf(requires[i]) >= 0) {
         continue;
       }
+      // wtf?!
+      /**/
 
       if (this.vendor.check(requires[i]) && (typeof this.vendor.get(requires[i]) === 'undefined')) {
         vendor_wait = this.vendor.load(requires[i], this);
@@ -243,7 +249,7 @@
       deps.push(requires[i]);
     }
 
-    this.queue.push({
+    this.queue[ns] = ({
       deps: deps,
       callback: cb,
       ns: ns,
@@ -400,12 +406,12 @@
         */
       if (this.objLength(item.deps) === this.objLength(item.loaded)) {
         this.namespace(item.ns, item.callback.apply({}, item.loaded));
-        this.queue.splice(i, 1);
+        delete this.queue[item.ns];
         this.checkQueue(item.ns);
         break;
       }
     }
-  };  
+  };
 
   /**
     * Base object, contains common library functions
