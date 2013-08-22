@@ -77,6 +77,7 @@
     */
   Vendor.prototype.get = function (ns) {
     var vendor = this.getConfig(ns);
+
     if (typeof vendor === 'string') {
       return window[vendor];
     } else {
@@ -127,9 +128,9 @@
     * @param {String} ns Vendor namespace
     * @return {Boolean} If vendor has hard deps, then it can be synchronous loaded
     */
-  Vendor.prototype.load = function (ns) {
+  Vendor.prototype.load = function (ns, requires) {
     var vendor_config = this.getConfig(ns),
-        self = this,
+        self = this, i,
         callback = function () {
           if (vendor_config.sync === true) {
             self.manager.load(ns);
@@ -137,7 +138,7 @@
         };
 
     if (vendor_config && (typeof vendor_config.use === 'object')) {
-      this.manager.add(vendor_config.use, callback, ns);
+      this.manager.add(vendor_config.use, callback, ns);//callback
 
       return (vendor_config.sync === true);
     }
@@ -232,19 +233,15 @@
         vendor_wait = false;
 
     for (var i = 0, l = requires.length; i < l; i += 1) {
-      // if it already loading then do nothing
-      /*
-      if (this.is_being_load.indexOf(requires[i]) >= 0) {
-        continue;
-      }
-      // wtf?!
-      /**/
+      // if it already loaded, then only add it to current module deps
+      if (!this.isLoaded(requires[i])) {
+        if (this.vendor.check(requires[i]) && (typeof this.vendor.get(requires[i]) === 'undefined')) {
+          vendor_wait = this.vendor.load(requires[i], requires);
+        }
 
-      if (this.vendor.check(requires[i]) && (typeof this.vendor.get(requires[i]) === 'undefined')) {
-        vendor_wait = this.vendor.load(requires[i], this);
-      }
-      if (!vendor_wait) {
-        this.load(requires[i], version);
+        if (!vendor_wait || !this.vendor.check(requires[i])) {
+          this.load(requires[i], version);
+        }
       }
       deps.push(requires[i]);
     }
@@ -315,8 +312,10 @@
     * @return {Manager}
     */
   Manager.prototype.load = function(ns, version) {
-    if ((this.is_being_load.indexOf(ns) >= 0) || this.isLoaded(ns)) {
-      this.checkQueue(ns);
+    if (this.is_being_load.indexOf(ns) >= 0) {
+      if (this.isLoaded(ns)) {
+        this.checkQueue(ns);
+      }
       return;
     }
 
@@ -458,7 +457,7 @@
   DepMan.prototype.use = function (requires, callback, namespace) {
     var version = this.module_version;
     this.module_version = '0.0.0';
-    namespace = namespace || 'auto_ns.'+(+new Date());
+    namespace = namespace || 'auto_ns.a_'+(+new Date());
     callback = typeof callback === 'function' ? callback : (function () {});
     this.manager.add(requires, callback, namespace, version);
 
