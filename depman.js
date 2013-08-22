@@ -128,7 +128,7 @@
     * @param {String} ns Vendor namespace
     * @return {Boolean} If vendor has hard deps, then it can be synchronous loaded
     */
-  Vendor.prototype.load = function (ns, requires) {
+  Vendor.prototype.load = function (ns) {
     var vendor_config = this.getConfig(ns),
         self = this, i,
         callback = function () {
