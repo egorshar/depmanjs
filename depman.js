@@ -138,7 +138,7 @@
         };
 
     if (vendor_config && (typeof vendor_config.use === 'object')) {
-      this.manager.add(vendor_config.use, callback, ns);//callback
+      this.manager.add(vendor_config.use, callback, ns);
 
       return (vendor_config.sync === true);
     }
